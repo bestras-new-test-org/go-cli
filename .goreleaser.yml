@@ -17,3 +17,12 @@ archives:
 release:
   github:
   prerelease: auto
+brews:
+  - tap:
+      owner: bestras-test-org
+      name: go-cli-brews
+    folder: Formula
+    homepage: https://github.com/bestras-test-org/go-cli
+    description: A fun TUI in go
+    test: |
+      system "#{bin}/go-cli"
