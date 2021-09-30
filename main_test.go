@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_greet(t *testing.T) {
-	got := greet()
+func Test_hello(t *testing.T) {
+	got := Hello()
 
-	assert.Equal(t, "Hi!", got, "should properly greet")
+	assert.Equal(t, "Hello", got, "should work")
 }
