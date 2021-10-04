@@ -1,4 +1,4 @@
-# github.com/charmbracelet/bubbletea v0.16.0
+# github.com/charmbracelet/bubbletea v0.17.0
 ## explicit
 github.com/charmbracelet/bubbletea
 # github.com/containerd/console v1.0.2
