@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/muesli/ansi/compressor"
 	"github.com/muesli/reflow/truncate"
 )
 
@@ -22,14 +23,15 @@ const (
 // In cases where very high performance is needed the renderer can be told
 // to exclude ranges of lines, allowing them to be written to directly.
 type standardRenderer struct {
-	out           io.Writer
-	buf           bytes.Buffer
-	framerate     time.Duration
-	ticker        *time.Ticker
-	mtx           *sync.Mutex
-	done          chan struct{}
-	lastRender    string
-	linesRendered int
+	out               io.Writer
+	buf               bytes.Buffer
+	framerate         time.Duration
+	ticker            *time.Ticker
+	mtx               *sync.Mutex
+	done              chan struct{}
+	lastRender        string
+	linesRendered     int
+	useANSICompressor bool
 
 	// essentially whether or not we're using the full size of the terminal
 	altScreenActive bool
@@ -44,12 +46,17 @@ type standardRenderer struct {
 
 // newRenderer creates a new renderer. Normally you'll want to initialize it
 // with os.Stdout as the first argument.
-func newRenderer(out io.Writer, mtx *sync.Mutex) renderer {
-	return &standardRenderer{
-		out:       out,
-		mtx:       mtx,
-		framerate: defaultFramerate,
+func newRenderer(out io.Writer, mtx *sync.Mutex, useANSICompressor bool) renderer {
+	r := &standardRenderer{
+		out:               out,
+		mtx:               mtx,
+		framerate:         defaultFramerate,
+		useANSICompressor: useANSICompressor,
 	}
+	if r.useANSICompressor {
+		r.out = &compressor.Writer{Forward: out}
+	}
+	return r
 }
 
 // start starts the renderer.
@@ -66,6 +73,12 @@ func (r *standardRenderer) stop() {
 	r.flush()
 	clearLine(r.out)
 	close(r.done)
+
+	if r.useANSICompressor {
+		if w, ok := r.out.(io.WriteCloser); ok {
+			_ = w.Close()
+		}
+	}
 }
 
 // kill halts the renderer. The final frame will not be rendered.
