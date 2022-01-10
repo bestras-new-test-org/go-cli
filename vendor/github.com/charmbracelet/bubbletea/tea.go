@@ -71,6 +71,7 @@ const (
 	withMouseAllMotion
 	withInputTTY
 	withCustomInput
+	withANSICompressor
 )
 
 // Program is a terminal user interface.
@@ -249,8 +250,8 @@ func NewProgram(model Model, opts ...ProgramOption) *Program {
 	return p
 }
 
-// Start initializes the program.
-func (p *Program) Start() error {
+// StartReturningModel initializes the program. Returns the final model.
+func (p *Program) StartReturningModel() (Model, error) {
 	p.msgs = make(chan Msg)
 
 	var (
@@ -291,7 +292,7 @@ func (p *Program) Start() error {
 		// Open a new TTY, by request
 		f, err := openInputTTY()
 		if err != nil {
-			return err
+			return p.initialModel, err
 		}
 
 		defer f.Close() // nolint:errcheck
@@ -314,7 +315,7 @@ func (p *Program) Start() error {
 
 		f, err := openInputTTY()
 		if err != nil {
-			return err
+			return p.initialModel, err
 		}
 
 		defer f.Close() // nolint:errcheck
@@ -355,12 +356,12 @@ func (p *Program) Start() error {
 	// Check if output is a TTY before entering raw mode, hiding the cursor and
 	// so on.
 	if err := p.initTerminal(); err != nil {
-		return err
+		return p.initialModel, err
 	}
 
 	// If no renderer is set use the standard one.
 	if p.renderer == nil {
-		p.renderer = newRenderer(p.output, p.mtx)
+		p.renderer = newRenderer(p.output, p.mtx, p.startupOptions.has(withANSICompressor))
 	}
 
 	// Honor program startup options.
@@ -396,7 +397,7 @@ func (p *Program) Start() error {
 
 	cancelReader, err := newCancelReader(p.input)
 	if err != nil {
-		return err
+		return model, err
 	}
 
 	defer cancelReader.Close() // nolint:errcheck
@@ -483,8 +484,8 @@ func (p *Program) Start() error {
 			cancelContext()
 			waitForGoroutines(cancelReader.Cancel())
 			p.shutdown(false)
+			return model, err
 
-			return err
 		case msg := <-p.msgs:
 
 			// Handle special internal messages.
@@ -493,7 +494,7 @@ func (p *Program) Start() error {
 				cancelContext()
 				waitForGoroutines(cancelReader.Cancel())
 				p.shutdown(false)
-				return nil
+				return model, nil
 
 			case batchMsg:
 				for _, cmd := range msg {
@@ -537,6 +538,12 @@ func (p *Program) Start() error {
 	}
 }
 
+// Start initializes the program. Ignores the final model.
+func (p *Program) Start() error {
+	_, err := p.StartReturningModel()
+	return err
+}
+
 // Send sends a message to the main update function, effectively allowing
 // messages to be injected from outside the program for interoperability
 // purposes.
@@ -550,6 +557,20 @@ func (p *Program) Send(msg Msg) {
 	if p.msgs != nil {
 		p.msgs <- msg
 	}
+}
+
+// Quit is a convenience function for quitting Bubble Tea programs. Use it
+// when you need to shut down a Bubble Tea program from the outside.
+//
+// If you wish to quit from within a Bubble Tea program use the Quit command.
+//
+// If the program is not running this will be a no-op, so it's safe to call
+// if the program is unstarted or has already exited.
+//
+// This method is currently provisional. The method signature may alter
+// slightly, or it may be removed in a future version of this package.
+func (p *Program) Quit() {
+	p.Send(Quit())
 }
 
 // shutdown performs operations to free up resources and restore the terminal
