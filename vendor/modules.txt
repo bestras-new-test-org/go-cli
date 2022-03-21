@@ -22,7 +22,7 @@ github.com/pkg/errors
 github.com/pmezard/go-difflib/difflib
 # github.com/rivo/uniseg v0.2.0
 github.com/rivo/uniseg
-# github.com/stretchr/testify v1.7.0
+# github.com/stretchr/testify v1.7.1
 ## explicit
 github.com/stretchr/testify/assert
 # golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c
