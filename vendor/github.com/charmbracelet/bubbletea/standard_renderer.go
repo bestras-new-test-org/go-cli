@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/muesli/ansi/compressor"
 	"github.com/muesli/reflow/truncate"
 )
 
@@ -22,14 +23,16 @@ const (
 // In cases where very high performance is needed the renderer can be told
 // to exclude ranges of lines, allowing them to be written to directly.
 type standardRenderer struct {
-	out           io.Writer
-	buf           bytes.Buffer
-	framerate     time.Duration
-	ticker        *time.Ticker
-	mtx           *sync.Mutex
-	done          chan struct{}
-	lastRender    string
-	linesRendered int
+	out               io.Writer
+	buf               bytes.Buffer
+	framerate         time.Duration
+	ticker            *time.Ticker
+	mtx               *sync.Mutex
+	done              chan struct{}
+	lastRender        string
+	linesRendered     int
+	useANSICompressor bool
+	once              sync.Once
 
 	// essentially whether or not we're using the full size of the terminal
 	altScreenActive bool
@@ -44,12 +47,17 @@ type standardRenderer struct {
 
 // newRenderer creates a new renderer. Normally you'll want to initialize it
 // with os.Stdout as the first argument.
-func newRenderer(out io.Writer, mtx *sync.Mutex) renderer {
-	return &standardRenderer{
-		out:       out,
-		mtx:       mtx,
-		framerate: defaultFramerate,
+func newRenderer(out io.Writer, mtx *sync.Mutex, useANSICompressor bool) renderer {
+	r := &standardRenderer{
+		out:               out,
+		mtx:               mtx,
+		framerate:         defaultFramerate,
+		useANSICompressor: useANSICompressor,
 	}
+	if r.useANSICompressor {
+		r.out = &compressor.Writer{Forward: out}
+	}
+	return r
 }
 
 // start starts the renderer.
@@ -65,13 +73,23 @@ func (r *standardRenderer) start() {
 func (r *standardRenderer) stop() {
 	r.flush()
 	clearLine(r.out)
-	close(r.done)
+	r.once.Do(func() {
+		close(r.done)
+	})
+
+	if r.useANSICompressor {
+		if w, ok := r.out.(io.WriteCloser); ok {
+			_ = w.Close()
+		}
+	}
 }
 
 // kill halts the renderer. The final frame will not be rendered.
 func (r *standardRenderer) kill() {
 	clearLine(r.out)
-	close(r.done)
+	r.once.Do(func() {
+		close(r.done)
+	})
 }
 
 // listen waits for ticks on the ticker, or a signal to stop the renderer.
@@ -221,6 +239,7 @@ func (r *standardRenderer) altScreen() bool {
 
 func (r *standardRenderer) setAltScreen(v bool) {
 	r.altScreenActive = v
+	r.repaint()
 }
 
 // setIgnoredLines specifies lines not to be touched by the standard Bubble Tea
@@ -326,6 +345,11 @@ func (r *standardRenderer) insertBottom(lines []string, topBoundary, bottomBound
 // handleMessages handles internal messages for the renderer.
 func (r *standardRenderer) handleMessages(msg Msg) {
 	switch msg := msg.(type) {
+	case repaintMsg:
+		// Force a repaint by clearing the render cache as we slide into a
+		// render.
+		r.repaint()
+
 	case WindowSizeMsg:
 		r.mtx.Lock()
 		r.width = msg.Width
