@@ -3,7 +3,7 @@
 github.com/charmbracelet/bubbletea
 # github.com/containerd/console v1.0.2
 github.com/containerd/console
-# github.com/davecgh/go-spew v1.1.0
+# github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/lucasb-eyer/go-colorful v1.2.0
 github.com/lucasb-eyer/go-colorful
@@ -22,7 +22,7 @@ github.com/pkg/errors
 github.com/pmezard/go-difflib/difflib
 # github.com/rivo/uniseg v0.2.0
 github.com/rivo/uniseg
-# github.com/stretchr/testify v1.7.0
+# github.com/stretchr/testify v1.8.0
 ## explicit
 github.com/stretchr/testify/assert
 # golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c
@@ -32,5 +32,5 @@ golang.org/x/sys/unix
 golang.org/x/sys/windows
 # golang.org/x/term v0.0.0-20210422114643-f5beecf764ed
 golang.org/x/term
-# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+# gopkg.in/yaml.v3 v3.0.1
 gopkg.in/yaml.v3
