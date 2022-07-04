@@ -1,23 +1,26 @@
-# github.com/charmbracelet/bubbletea v0.16.0
+# github.com/charmbracelet/bubbletea v0.22.0
 ## explicit
 github.com/charmbracelet/bubbletea
-# github.com/containerd/console v1.0.2
+# github.com/containerd/console v1.0.3
 github.com/containerd/console
 # github.com/davecgh/go-spew v1.1.0
 github.com/davecgh/go-spew/spew
 # github.com/lucasb-eyer/go-colorful v1.2.0
 github.com/lucasb-eyer/go-colorful
-# github.com/mattn/go-isatty v0.0.12
+# github.com/mattn/go-isatty v0.0.14
 github.com/mattn/go-isatty
-# github.com/mattn/go-runewidth v0.0.10
+# github.com/mattn/go-runewidth v0.0.13
 github.com/mattn/go-runewidth
-# github.com/muesli/reflow v0.2.1-0.20210115123740-9e1d0d53df68
+# github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b
+github.com/muesli/ansi
+github.com/muesli/ansi/compressor
+# github.com/muesli/cancelreader v0.2.1
+github.com/muesli/cancelreader
+# github.com/muesli/reflow v0.3.0
 github.com/muesli/reflow/ansi
 github.com/muesli/reflow/truncate
-# github.com/muesli/termenv v0.8.1
+# github.com/muesli/termenv v0.11.1-0.20220212125758-44cd13922739
 github.com/muesli/termenv
-# github.com/pkg/errors v0.9.1
-github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
 # github.com/rivo/uniseg v0.2.0
@@ -25,12 +28,12 @@ github.com/rivo/uniseg
 # github.com/stretchr/testify v1.7.0
 ## explicit
 github.com/stretchr/testify/assert
-# golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c
+# golang.org/x/sys v0.0.0-20220209214540-3681064d5158
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/term v0.0.0-20210422114643-f5beecf764ed
+# golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 golang.org/x/term
 # gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 gopkg.in/yaml.v3
