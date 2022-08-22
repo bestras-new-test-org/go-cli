@@ -7,8 +7,7 @@ import "io"
 //
 // Example usage:
 //
-//     p := NewProgram(model, WithInput(someInput), WithOutput(someOutput))
-//
+//	p := NewProgram(model, WithInput(someInput), WithOutput(someOutput))
 type ProgramOption func(*Program)
 
 // WithOutput sets the output which, by default, is stdout. In most cases you
@@ -51,11 +50,11 @@ func WithoutCatchPanics() ProgramOption {
 //
 // Example:
 //
-//     p := tea.NewProgram(Model{}, tea.WithAltScreen())
-//     if err := p.Start(); err != nil {
-//         fmt.Println("Error running program:", err)
-//         os.Exit(1)
-//     }
+//	p := tea.NewProgram(Model{}, tea.WithAltScreen())
+//	if err := p.Start(); err != nil {
+//	    fmt.Println("Error running program:", err)
+//	    os.Exit(1)
+//	}
 //
 // To enter the altscreen once the program has already started running use the
 // EnterAltScreen command.
@@ -117,5 +116,16 @@ func WithMouseAllMotion() ProgramOption {
 func WithoutRenderer() ProgramOption {
 	return func(m *Program) {
 		m.renderer = &nilRenderer{}
+	}
+}
+
+// WithANSICompressor removes redundant ANSI sequences to produce potentially
+// smaller output, at the cost of some processing overhead.
+//
+// This feature is provisional, and may be changed removed in a future version
+// of this package.
+func WithANSICompressor() ProgramOption {
+	return func(p *Program) {
+		p.startupOptions |= withANSICompressor
 	}
 }
