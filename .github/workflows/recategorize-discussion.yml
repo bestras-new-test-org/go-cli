@@ -61,9 +61,9 @@ jobs:
       run: |
         # split github.repository into owner and name
         repo_name=$(echo ${{ github.repository }} | cut -d '/' -f 2)
-        found_category=$(gh api graphql -f query='
-          query{
-            repository(owner:"${{ github.repository_owner }}",name:"$repo_name"){
+        found_category=$(gh api graphql -F name="$repoName" -F owner="${{ github.repository_owner }}" -f query='
+          query($name: String!, $owner: String!){
+            repository(owner:$owner, name:$name){
               discussionCategories(first:100){
                 nodes{
                   id
