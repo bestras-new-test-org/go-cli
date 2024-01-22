@@ -51,6 +51,7 @@ jobs:
               }
             }
           }' | jq -r '.data.search.nodes[].id')"
+        echo 'Found discussions: '"$discussions"
         echo 'DISCUSSIONS_TO_TRANSEFER='$discussions >> $GITHUB_ENV
     - name: Find the id of the discussion category in the current repository
       run: |
