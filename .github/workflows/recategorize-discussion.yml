@@ -59,9 +59,11 @@ jobs:
       env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        category=$(gh api graphql -f query='
+        # split github.repository into owner and name
+        IFS='/' read -ra repo <<< "${{ github.repository }}"
+        found_category=$(gh api graphql -f query='
           query{
-            repository(owner:"${{ github.repository_owner }}",name:"${{ github.repository.name }}"){
+            repository(owner:"${{ github.repository_owner }}",name:"$repo[1]"){
               discussionCategories(first:100){
                 nodes{
                   id
@@ -70,7 +72,7 @@ jobs:
               }
             }
           }' | jq -r --arg category "${{ inputs.category }}" '.data.repository.discussionCategories.nodes[] | select(.name==$category) | .id')
-        echo 'CATEGORY_ID='$category >> $GITHUB_ENV
+        echo 'CATEGORY_ID='$found_category >> $GITHUB_ENV
     - name: Dryrun
       env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
