@@ -44,5 +44,9 @@ jobs:
       run: |
         searchQuery="label:${{ inputs.label }} repo:${{ github.repository}}"
         discussions="$(gh api graphql -F query=$searchQuery -f query='
-          search(query:$query,type:DISCUSSION,first:100){nodes{...on Discussion{number}}}}' | jq -r '.data.search.nodes[].number')"
+          search(query:$query,type:DISCUSSION,first:100){
+            nodes{
+              ...on Discussion{number}
+            }
+          }' | jq -r '.data.search.nodes[].number')"
         echo "Found discussions: $discussions"
