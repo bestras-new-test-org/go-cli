@@ -43,10 +43,32 @@ jobs:
     - name: Find labeled discussions
       run: |
         searchQuery="label:${{ inputs.label }} repo:${{ github.repository}}"
-        discussions="$(gh api graphql -F query=$searchQuery -f query='
-          search(query:$query,type:DISCUSSION,first:100){
-            nodes{
-              ...on Discussion{number}
+        discussions=$(gh api graphql -F queryString="$searchQuery" -f query='
+          query($queryString: String!) {
+            search(query:$queryString,type:DISCUSSION,first:100){
+              nodes{
+                ...on Discussion{id}
+              }
             }
-          }' | jq -r '.data.search.nodes[].number')"
-        echo "Found discussions: $discussions"
+          }' | jq -r'.data.search.nodes[].id')"
+        echo 'DISCUSSIONS_TO_TRANSEFER='$discussions >> $GITHUB_ENV
+    - name: Find the id of the discussion category in the current repository
+      run: |
+        category=$(gh api graphql -f query='
+          query{
+            repository(owner:"${{ github.repository_owner }}",name:"${{ github.repository.name }}"){
+              discussionCategories(first:100){
+                nodes{
+                  id
+                  name
+                }
+              }
+            }
+          }' | jq -r --arg category "${{ inputs.category }}" '.data.repository.discussionCategories.nodes[] | select(.name==$category) | .id')
+        echo 'CATEGORY_ID='$category >> $GITHUB_ENV
+    - name: Dryrun
+      run: |
+        echo "Dryrun"
+        echo "DISCUSSIONS_TO_TRANSEFER=$DISCUSSIONS_TO_TRANSEFER"
+        echo "CATEGORY_ID=$CATEGORY_ID"
+
