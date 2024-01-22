@@ -47,7 +47,7 @@ jobs:
         searchQuery="label:${{ inputs.label }} repo:${{ github.repository}}"
         discussions="$(gh api graphql -F queryString="$searchQuery" -f query='
           query($queryString: String!) {
-            search(query:$queryString,type:DISCUSSION,first:10){
+            search(query:$queryString,type:DISCUSSION,first:50){
               nodes{
                 ...on Discussion{id}
               }
