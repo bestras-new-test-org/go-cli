@@ -39,3 +39,10 @@ jobs:
     # Runs a single command using the runners shell
     - name: Send greeting
       run: echo "Moving Discussions labeled ${{ inputs.label }} to category ${{  inputs.category }}"
+    # Use the graphql search api to find all discussions with the label using the search() query
+    - name: Find labeled discussions
+      run: |
+        searchQuery="label:${{ inputs.label }} repo:${{ github.repository}}"
+        discussions="$(gh api graphql -F query=$searchQuery -f query='
+          search(query:$query,type:DISCUSSION,first:100){nodes{...on Discussion{number}}}}' | jq -r '.data.search.nodes[].number')"
+        echo "Found discussions: $discussions"
