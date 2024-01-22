@@ -43,14 +43,14 @@ jobs:
     - name: Find labeled discussions
       run: |
         searchQuery="label:${{ inputs.label }} repo:${{ github.repository}}"
-        discussions=$(gh api graphql -F queryString="$searchQuery" -f query='
+        discussions="$(gh api graphql -F queryString="$searchQuery" -f query='
           query($queryString: String!) {
             search(query:$queryString,type:DISCUSSION,first:100){
               nodes{
                 ...on Discussion{id}
               }
             }
-          }' | jq -r'.data.search.nodes[].id')"
+          }' | jq -r '.data.search.nodes[].id')"
         echo 'DISCUSSIONS_TO_TRANSEFER='$discussions >> $GITHUB_ENV
     - name: Find the id of the discussion category in the current repository
       run: |
