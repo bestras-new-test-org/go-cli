@@ -41,6 +41,8 @@ jobs:
       run: echo "Moving Discussions labeled ${{ inputs.label }} to category ${{  inputs.category }}"
     # Use the graphql search api to find all discussions with the label using the search() query
     - name: Find labeled discussions
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         searchQuery="label:${{ inputs.label }} repo:${{ github.repository}}"
         discussions="$(gh api graphql -F queryString="$searchQuery" -f query='
@@ -54,6 +56,8 @@ jobs:
         echo 'Found discussions: '"$discussions"
         echo 'DISCUSSIONS_TO_TRANSEFER='$discussions >> $GITHUB_ENV
     - name: Find the id of the discussion category in the current repository
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         category=$(gh api graphql -f query='
           query{
@@ -68,6 +72,8 @@ jobs:
           }' | jq -r --arg category "${{ inputs.category }}" '.data.repository.discussionCategories.nodes[] | select(.name==$category) | .id')
         echo 'CATEGORY_ID='$category >> $GITHUB_ENV
     - name: Dryrun
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         echo "Dryrun"
         echo "DISCUSSIONS_TO_TRANSEFER=$DISCUSSIONS_TO_TRANSEFER"
