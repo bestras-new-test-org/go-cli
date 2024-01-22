@@ -90,7 +90,7 @@ jobs:
           echo "Moving discussion $discussion_id to category $CATEGORY_ID"
           gh api graphql -F discussionId="$discussion_id" -F categoryId="$CATEGORY_ID" -f query='
             mutation($discussionId: ID!, $categoryId: ID!) {
-              updateDiscussion(input: {id: $discussionId, categoryId: $categoryId}) {
+              updateDiscussion(input: {discussionId: $discussionId, categoryId: $categoryId}) {
                 discussion {
                   number
                 }
